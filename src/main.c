@@ -85,6 +85,21 @@ int getArgs(int argc, char *argv[]){
   return 0;
 }
 
+char *getTime() {
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+  char timeStr[18];
+  strftime(timeStr, 18, "%D %H:%M:%S", &tm);
+  return timeStr;
+}
+
+void logStr(char *str, char *directionStr){
+  char *timeStr = getTime();
+  write(fdLog, timeStr , strlen(timeStr));
+  write(fdLog, directionStr, strlen(directionStr));
+  write(fdLog, str, strlen(str));
+}
+
 int main (int argc, char *argv[]) {
   
   if (getArgs(argc, argv) == 1){
@@ -195,11 +210,9 @@ int main (int argc, char *argv[]) {
       if (fdCount == -1) {
         perror("Select error:\n");
       } else if (fdCount == 0 && !receivedIOSignal){
-        time_t t = time(NULL);
-        struct tm tm = *localtime(&t);
-        char timeStr[30];
-        strftime(timeStr, 30, "%D %H:%M:%S NOIO\n", &tm);
-        write(fdLog, timeStr, strlen(timeStr));
+        char *timeStr = getTime();
+        write(fdLog, timeStr , strlen(timeStr));
+        write(fdLog, " NOIO\n", 7);
       } else {
         char buffer[1];
         int strLength;
@@ -228,6 +241,9 @@ int main (int argc, char *argv[]) {
             } else {
               str[strLength]='\0';
               printf("%d / <1 / %s\n",childPid,str);
+              
+              logStr(str, " <1 / ");
+              
               strLength = 0;
             }
             
@@ -241,6 +257,7 @@ int main (int argc, char *argv[]) {
               if (strLength>0) {
                 str[strLength]='\0';
                 printf("%d / <1 / %s\n",childPid,str);
+                logStr(str, " <1 / ");
                 strLength = 0;
               }
               break;
@@ -266,6 +283,7 @@ int main (int argc, char *argv[]) {
             } else {
               str[strLength]='\0';
               printf("%d / <2 / %s\n",childPid,str);
+              logStr(str, " <2 / ");
               strLength = 0;
             }
             if (poll(&temp, 1, 0)==1) {
@@ -278,6 +296,7 @@ int main (int argc, char *argv[]) {
               if (strLength>0) {
                 str[strLength]='\0';
                 printf("%d / <2 / %s\n",childPid,str);
+                logStr(str, " <2 / ");
                 strLength = 0;
               }
               break;
@@ -317,6 +336,7 @@ int main (int argc, char *argv[]) {
             
             
             printf("%d / >0 / %s",childPid,str);
+            logStr(str, " >0 / ");
             if (strncmp(str,"exit",4) == 0 && strLength == 5) {
               printf("kill child\n");
               kill(SIGKILL,childPid);
