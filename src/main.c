@@ -223,6 +223,57 @@ int main (int argc, char *argv[]) {
           needOut = FD_ISSET(fdout[0], &fds);
           needErr = FD_ISSET(fderr[0], &fds);
         }
+        if (needIn){
+          needIn = 0;
+          struct pollfd temp;
+          temp.fd = 0;
+          temp.events = POLLIN;
+          if (poll(&temp, 1, 0)==1) {
+            strLength=0;
+            int readRes = read(0, &buffer, sizeof(char));
+            if (readRes == -1) {
+              perror("Can't read:\n");
+              return 0;
+            }
+            
+            while(readRes>0) {
+              str[strLength++]=buffer[0];
+              if (poll(&temp, 1, 0)==1) {
+                readRes = read(0, &buffer, 1);
+                if (readRes == -1) {
+                  perror("Can't read:\n");
+                  return 0;
+                }
+              } else {
+                if (strLength>0) {
+                  str[strLength]='\0';
+                  //printf("In: %s\n",str);
+                  //strLength = 0;
+                }
+                break;
+              }
+            }
+            
+            
+            printf("%d / >0 / %s",childPid,str);
+            logStr(str, " >0 / ");
+            if (strncmp(str,"exit",4) == 0 && strLength == 5) {
+              printf("kill child\n");
+              kill(SIGKILL,childPid);
+              break;
+            }
+            
+            int writeRes = write(fdin[1],str,strLength);
+            if(writeRes==-1){
+              perror("Can't write to child:\n");
+              return 0;
+            } else if (writeRes == 0){
+              fprintf (stderr, "Didn't write anything\n");
+            } else {
+              //printf ("writed %d\n",writeRes);
+            }
+          }
+        }
         if (needOut) {
           needOut = 0;
           strLength=0;
@@ -307,57 +358,7 @@ int main (int argc, char *argv[]) {
             }
           }
         }
-        if (needIn){//FD_ISSET(0, &fds)) {
-          needIn = 0;
-          struct pollfd temp;
-          temp.fd = 0;
-          temp.events = POLLIN;
-          if (poll(&temp, 1, 0)==1) {
-            strLength=0;
-            int readRes = read(0, &buffer, sizeof(char));
-            if (readRes == -1) {
-              perror("Can't read:\n");
-              return 0;
-            }
-            
-            while(readRes>0) {
-              str[strLength++]=buffer[0];
-              if (poll(&temp, 1, 0)==1) {
-                readRes = read(0, &buffer, 1);
-                if (readRes == -1) {
-                  perror("Can't read:\n");
-                  return 0;
-                }
-              } else {
-                if (strLength>0) {
-                  str[strLength]='\0';
-                  //printf("In: %s\n",str);
-                  //strLength = 0;
-                }
-                break;
-              }
-            }
-            
-            
-            printf("%d / >0 / %s",childPid,str);
-            logStr(str, " >0 / ");
-            if (strncmp(str,"exit",4) == 0 && strLength == 5) {
-              printf("kill child\n");
-              kill(SIGKILL,childPid);
-              break;
-            }
-            
-            int writeRes = write(fdin[1],str,strLength);
-            if(writeRes==-1){
-              perror("Can't write to child:\n");
-              return 0;
-            } else if (writeRes == 0){
-              fprintf (stderr, "Didn't write anything\n");
-            } else {
-              //printf ("writed %d\n",writeRes);
-            }
-          }
-        }
+        
       }
     }
     printf("%d TERMINATED WITH CODE %d\n", childPid, sigchldInfo.si_code);
