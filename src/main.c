@@ -166,9 +166,15 @@ int main (int argc, char *argv[]) {
     fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
     fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
     
-    fcntl(0, F_SETSIG, SIGRTMIN);
-    fcntl(fdout[0], F_SETSIG, SIGRTMIN);
-    fcntl(fderr[0], F_SETSIG, SIGRTMIN);
+    if(fcntl(0, F_SETSIG, SIGRTMIN) == -1){
+      perror("Can't SETSIG:\n");
+    }
+    if(fcntl(fdout[0], F_SETSIG, SIGRTMIN) == -1){
+      perror("Can't SETSIG:\n");
+    }
+    if(fcntl(fderr[0], F_SETSIG, SIGRTMIN) == -1){
+      perror("Can't SETSIG:\n");
+    }
     
     while (!receivedChildSignal) {
       sleep(1);
