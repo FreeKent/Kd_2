@@ -33,6 +33,7 @@ void childHandler(int signo, siginfo_t *siginfo, void *context){
       break;
     }
     case SIGIO:{
+      printf("SIGIO!\n");
       receivedIOSignal = 1;
       sigIOInfo = *siginfo;
       if (sigIOInfo.si_fd == 0) {//si_fd
