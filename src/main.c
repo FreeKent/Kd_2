@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 #include <kd_2.h>
 #include <getopt.h>
 #include <unistd.h>
