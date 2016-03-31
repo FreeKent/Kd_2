@@ -33,7 +33,7 @@ void childHandler(int signo, siginfo_t *siginfo, void *context){
       sigchldInfo = *siginfo;
       break;
     }
-    case SIGIO:{
+    case SIGRTMIN:{
       printf("SIGIO!\n");
       receivedIOSignal = 1;
       sigIOInfo = *siginfo;
@@ -161,11 +161,13 @@ int main (int argc, char *argv[]) {
     close(fdout[1]);
     close(fderr[1]);
     close(fdin[0]);
+    
     fcntl(0, F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(0, F_SETSIG, SIGRTMIN);
     fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(fdout[0], F_SETSIG, SIGRTMIN);
     fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
+    
+    fcntl(0, F_SETSIG, SIGRTMIN);
+    fcntl(fdout[0], F_SETSIG, SIGRTMIN);
     fcntl(fderr[0], F_SETSIG, SIGRTMIN);
     
     while (!receivedChildSignal) {
