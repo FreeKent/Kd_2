@@ -294,7 +294,7 @@ int main (int argc, char *argv[]) {
                 }
               } else {
                 if (strLength>0) {
-                  str[strLength]='\0';
+                  //str[strLength]='\0';
                   //printf("In: %s\n",str);
                   //strLength = 0;
                 }
