@@ -77,7 +77,7 @@ int getArgs(int argc, char *argv[]){
     fprintf(stderr, "You must use --execute=\"command and args\"\n");
     return 1;
   }
-  fdLog = (logFile == NULL) ? stderr : open(logFile, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+  fdLog = (logFile == NULL) ? 2 : open(logFile, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
   if (fdLog == -1) {
     perror("LogFile error:\n");
   }
