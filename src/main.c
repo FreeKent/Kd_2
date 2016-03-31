@@ -33,7 +33,7 @@ void childHandler(int signo, siginfo_t *siginfo, void *context){
       sigchldInfo = *siginfo;
       break;
     }
-    case SIGRTMIN:{
+    case SIGIO:{
       printf("SIGIO!\n");
       receivedIOSignal = 1;
       sigIOInfo = *siginfo;
@@ -142,7 +142,7 @@ int main (int argc, char *argv[]) {
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
     sigaddset(&mask, SIGIO);
-    sigaddset(&mask, SIGRTMIN);
+    sigaddset(&mask, SIGUSR1);
     sigaddset(&mask, SIGUSR2);
     sa.sa_mask = mask;
     if (sigaction(SIGCHLD, &sa, NULL) == -1) {
@@ -166,13 +166,13 @@ int main (int argc, char *argv[]) {
     fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
     fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
     
-    if(fcntl(0, F_SETSIG, SIGRTMIN) == -1){
+    if(fcntl(0, F_SETSIG, SIGIO) == -1){
       perror("Can't SETSIG:\n");
     }
-    if(fcntl(fdout[0], F_SETSIG, SIGRTMIN) == -1){
+    if(fcntl(fdout[0], F_SETSIG, SIGIO) == -1){
       perror("Can't SETSIG:\n");
     }
-    if(fcntl(fderr[0], F_SETSIG, SIGRTMIN) == -1){
+    if(fcntl(fderr[0], F_SETSIG, SIGIO) == -1){
       perror("Can't SETSIG:\n");
     }
     
