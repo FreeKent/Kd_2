@@ -26,7 +26,6 @@ int needIn=0, needOut=0, needErr=0;
 int fdin[2],fdout[2],fderr[2];
 
 void childHandler(int signo, siginfo_t *siginfo, void *context){
-  printf("SIGIO!\n");
   switch (signo) {
     case SIGCHLD:{
       receivedChildSignal = 1;
@@ -34,7 +33,6 @@ void childHandler(int signo, siginfo_t *siginfo, void *context){
       break;
     }
     case SIGIO:{
-      printf("SIGIO!\n");
       receivedIOSignal = 1;
       sigIOInfo = *siginfo;
       if (sigIOInfo.si_fd == 0) {//si_fd
@@ -201,18 +199,10 @@ int main (int argc, char *argv[]) {
       } else if (fdCount == 0 && !receivedIOSignal){
         printf("NOIO\n");
       } else {
-        //printf ("IO!\n");
         char buffer[1];
-//        int needIn=0, needOut=0, needErr=0;
         int strLength;
         if (mode == 1) {
-//          if (sigIOInfo.si_fd == 0) {//si_fd
-//            needIn = 1;
-//          } else if (sigIOInfo.si_fd == fdout[0]) {
-//            needOut = 1;
-//          } else if (sigIOInfo.si_fd == fderr[0]) {
-//            needErr = 1;
-//          }
+          
         } else {
           needIn = FD_ISSET(0, &fds);
           needOut = FD_ISSET(fdout[0], &fds);
@@ -221,7 +211,6 @@ int main (int argc, char *argv[]) {
         if (needOut) {
           needOut = 0;
           strLength=0;
-          printf("output\n");
           int readRes = read(fdout[0], &buffer, sizeof(char));
           if (readRes == -1) {
             perror("Can't read:\n");
@@ -234,7 +223,6 @@ int main (int argc, char *argv[]) {
             
             if (buffer[0]!='\n') {
               str[strLength++]=buffer[0];
-              printf("strl %d\n",strLength);
             } else {
               str[strLength]='\0';
               printf("Out: %s\n",str);
@@ -332,7 +320,6 @@ int main (int argc, char *argv[]) {
               kill(SIGKILL,childPid);
               break;
             }
-            printf ("not exit\n");
             
             int writeRes = write(fdin[1],str,strLength);
             if(writeRes==-1){
@@ -341,11 +328,9 @@ int main (int argc, char *argv[]) {
             } else if (writeRes == 0){
               fprintf (stderr, "Didn't write anything\n");
             } else {
-              printf ("writed %d\n",writeRes);
+              //printf ("writed %d\n",writeRes);
             }
-            
           }
-          
         }
       }
     }
