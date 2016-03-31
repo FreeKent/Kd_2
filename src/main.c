@@ -22,6 +22,7 @@ int receivedChildSignal = 0;
 siginfo_t sigchldInfo,sigIOInfo;
 char str[10000];
 int receivedIOSignal = 0,receivedOutSignal = 0,receivedErrSignal = 0;
+int needIn=0, needOut=0, needErr=0;
 void childHandler(int signo, siginfo_t *siginfo, void *context){
   switch (signo) {
     case SIGCHLD:{
@@ -32,6 +33,13 @@ void childHandler(int signo, siginfo_t *siginfo, void *context){
     case SIGIO:{
       receivedIOSignal = 1;
       sigIOInfo = *siginfo;
+      if (sigIOInfo.si_fd == 0) {//si_fd
+        needIn = 1;
+      } else if (sigIOInfo.si_fd == fdout[0]) {
+        needOut = 1;
+      } else if (sigIOInfo.si_fd == fderr[0]) {
+        needErr = 1;
+      }
       break;
     }
     default:
@@ -183,22 +191,23 @@ int main (int argc, char *argv[]) {
       } else {
         //printf ("IO!\n");
         char buffer[1];
-        int needIn=0, needOut=0, needErr=0;
+//        int needIn=0, needOut=0, needErr=0;
         int strLength;
         if (mode == 1) {
-          if (sigIOInfo.si_fd == 0) {//si_fd
-            needIn = 1;
-          } else if (sigIOInfo.si_fd == fdout[0]) {
-            needOut = 1;
-          } else if (sigIOInfo.si_fd == fderr[0]) {
-            needErr = 1;
-          }
+//          if (sigIOInfo.si_fd == 0) {//si_fd
+//            needIn = 1;
+//          } else if (sigIOInfo.si_fd == fdout[0]) {
+//            needOut = 1;
+//          } else if (sigIOInfo.si_fd == fderr[0]) {
+//            needErr = 1;
+//          }
         } else {
           needIn = FD_ISSET(0, &fds);
           needOut = FD_ISSET(fdout[0], &fds);
           needErr = FD_ISSET(fderr[0], &fds);
         }
         if (needOut) {
+          needOut = 0;
           strLength=0;
           printf("output\n");
           int readRes = read(fdout[0], &buffer, sizeof(char));
@@ -239,6 +248,7 @@ int main (int argc, char *argv[]) {
           receivedIOSignal = 0;
         }
         if (needErr) {
+          needErr = 0;
           strLength=0;
           int readRes = read(fderr[0], &buffer, sizeof(char));
           if (readRes == -1) {
@@ -273,6 +283,7 @@ int main (int argc, char *argv[]) {
           }
         }
         if (needIn){//FD_ISSET(0, &fds)) {
+          needIn = 0;
           struct pollfd temp;
           temp.fd = 0;
           temp.events = POLLIN;
