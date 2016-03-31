@@ -85,16 +85,15 @@ int getArgs(int argc, char *argv[]){
   return 0;
 }
 
-char *getTime() {
+void getTime(char *timeStr) {
   time_t t = time(NULL);
   struct tm tm = *localtime(&t);
-  char timeStr[18];
   strftime(timeStr, 18, "%D %H:%M:%S", &tm);
-  return timeStr;
 }
 
 void logStr(char *str, char *directionStr){
-  char *timeStr = getTime();
+  char timeStr[18];
+  getTime(timeStr);
   write(fdLog, timeStr , strlen(timeStr));
   write(fdLog, directionStr, strlen(directionStr));
   write(fdLog, str, strlen(str));
@@ -210,7 +209,8 @@ int main (int argc, char *argv[]) {
       if (fdCount == -1) {
         perror("Select error:\n");
       } else if (fdCount == 0 && !receivedIOSignal){
-        char *timeStr = getTime();
+        char timeStr[18];
+        getTime(timeStr);
         write(fdLog, timeStr , strlen(timeStr));
         write(fdLog, " NOIO\n", 7);
       } else {
