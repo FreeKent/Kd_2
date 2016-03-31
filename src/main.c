@@ -199,7 +199,7 @@ int main (int argc, char *argv[]) {
         struct tm tm = *localtime(&t);
         char timeStr[30];
         strftime(timeStr, 30, "%D %H:%M:%S NOIO\n", &tm);
-        fprintf(fdLog, timeStr);
+        write(fdLog, timeStr, strlen(timeStr));
       } else {
         char buffer[1];
         int strLength;
