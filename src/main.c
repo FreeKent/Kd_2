@@ -161,19 +161,23 @@ int main (int argc, char *argv[]) {
     close(fdout[1]);
     close(fderr[1]);
     close(fdin[0]);
-    
-    fcntl(0, F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
-    
-    if(fcntl(0, F_SETSIG, SIGIO) == -1){
-      perror("Can't SETSIG:\n");
-    }
-    if(fcntl(fdout[0], F_SETSIG, SIGIO) == -1){
-      perror("Can't SETSIG:\n");
-    }
-    if(fcntl(fderr[0], F_SETSIG, SIGIO) == -1){
-      perror("Can't SETSIG:\n");
+    if (mode == 1) {
+      fcntl(0, F_SETFL, O_ASYNC | O_NONBLOCK);
+      fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
+      fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
+      
+      if(fcntl(0, F_SETSIG, SIGIO) == -1){
+        perror("Can't SETSIG:\n");
+      }
+      if(fcntl(fdout[0], F_SETSIG, SIGIO) == -1){
+        perror("Can't SETSIG:\n");
+      }
+      if(fcntl(fderr[0], F_SETSIG, SIGIO) == -1){
+        perror("Can't SETSIG:\n");
+      }
+      fcntl(0, F_SETOWN, getpid());
+      fcntl(fdout[0], F_SETOWN, getpid());
+      fcntl(fderr[0], F_SETOWN, getpid());
     }
     
     while (!receivedChildSignal) {
