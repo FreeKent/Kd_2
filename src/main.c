@@ -191,7 +191,6 @@ int main (int argc, char *argv[]) {
     }
     
     while (!receivedChildSignal) {
-      sleep(1);
       fd_set fds;
       struct timeval tv;
       int fdCount = 0;
