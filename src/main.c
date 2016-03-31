@@ -26,6 +26,7 @@ int needIn=0, needOut=0, needErr=0;
 int fdin[2],fdout[2],fderr[2];
 
 void childHandler(int signo, siginfo_t *siginfo, void *context){
+  printf("SIGIO!\n");
   switch (signo) {
     case SIGCHLD:{
       receivedChildSignal = 1;
