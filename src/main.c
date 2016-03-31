@@ -160,12 +160,12 @@ int main (int argc, char *argv[]) {
     close(fdout[1]);
     close(fderr[1]);
     close(fdin[0]);
-    fcntl(0, F_SETFL, O_ASYNC | NONBLOCK);
+    fcntl(0, F_SETFL, O_ASYNC | O_NONBLOCK);
     fcntl(0, F_SETSIG, SIGIO);
     fcntl(fdout[0], F_SETFL, O_ASYNC);
-    fcntl(fdout[0], F_SETSIG, SIGIO | NONBLOCK);
+    fcntl(fdout[0], F_SETSIG, SIGIO | O_NONBLOCK);
     fcntl(fderr[0], F_SETFL, O_ASYNC);
-    fcntl(fderr[0], F_SETSIG, SIGIO | NONBLOCK);
+    fcntl(fderr[0], F_SETSIG, SIGIO | O_NONBLOCK);
     
     while (!receivedChildSignal) {
       sleep(1);
