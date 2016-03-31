@@ -24,6 +24,7 @@ char str[10000];
 int receivedIOSignal = 0,receivedOutSignal = 0,receivedErrSignal = 0;
 int needIn=0, needOut=0, needErr=0;
 int fdin[2],fdout[2],fderr[2];
+int fdLog;
 
 void childHandler(int signo, siginfo_t *siginfo, void *context){
   switch (signo) {
@@ -74,6 +75,10 @@ int getArgs(int argc, char *argv[]){
   if (command == NULL) {
     fprintf(stderr, "You must use --execute=\"command and args\"\n");
     return 1;
+  }
+  fdLog = (logFile == NULL) ? stderr : open(logFile, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+  if (fdLog == -1) {
+    perror("LogFile error:\n");
   }
   printf("------======Launching======------\n");
   return 0;
@@ -140,20 +145,12 @@ int main (int argc, char *argv[]) {
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
     sigaddset(&mask, SIGIO);
-    sigaddset(&mask, SIGUSR1);
-    sigaddset(&mask, SIGUSR2);
     sa.sa_mask = mask;
     if (sigaction(SIGCHLD, &sa, NULL) == -1) {
       perror("Can't change action for SIGCHLD");
     }
     if (sigaction(SIGIO, &sa, NULL) == -1) {
       perror("Can't change action for SIGIO");
-    }
-    if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
-      perror("Can't change action for SIGUSR1");
-    }
-    if (sigaction(SIGUSR2, &sa, NULL) == -1) {
-      perror("Can't change action for SIGUSR2");
     }
     
     close(fdout[1]);
@@ -197,7 +194,11 @@ int main (int argc, char *argv[]) {
       if (fdCount == -1) {
         perror("Select error:\n");
       } else if (fdCount == 0 && !receivedIOSignal){
-        printf("NOIO\n");
+        time_t t = time(NULL);
+        struct tm tm = *localtime(&t);
+        char timeStr[30];
+        strftime(timeStr, 30, "%D %H:%M:%S NOIO\n", &tm);
+        fprintf(fdLog, timeStr);
       } else {
         char buffer[1];
         int strLength;
@@ -225,7 +226,7 @@ int main (int argc, char *argv[]) {
               str[strLength++]=buffer[0];
             } else {
               str[strLength]='\0';
-              printf("Out: %s\n",str);
+              printf("%d / <1 / %s\n",childPid,str);
               strLength = 0;
             }
             
@@ -238,7 +239,7 @@ int main (int argc, char *argv[]) {
             } else {
               if (strLength>0) {
                 str[strLength]='\0';
-                printf("Out: %s\n",str);
+                printf("%d / <1 / %s\n",childPid,str);
                 strLength = 0;
               }
               break;
@@ -263,7 +264,7 @@ int main (int argc, char *argv[]) {
               str[strLength++]=buffer[0];
             } else {
               str[strLength]='\0';
-              fprintf(stderr,"Error: %s\n",str);
+              printf("%d / <2 / %s\n",childPid,str);
               strLength = 0;
             }
             if (poll(&temp, 1, 0)==1) {
@@ -275,7 +276,7 @@ int main (int argc, char *argv[]) {
             } else {
               if (strLength>0) {
                 str[strLength]='\0';
-                fprintf(stderr,"Error: %s\n",str);
+                printf("%d / <2 / %s\n",childPid,str);
                 strLength = 0;
               }
               break;
@@ -314,7 +315,7 @@ int main (int argc, char *argv[]) {
             }
             
             
-            printf("In: %s\n",str);
+            printf("%d / >0 / %s",childPid,str);
             if (strncmp(str,"exit",4) == 0 && strLength == 5) {
               printf("kill child\n");
               kill(SIGKILL,childPid);
