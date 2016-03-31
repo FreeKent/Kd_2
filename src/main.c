@@ -239,8 +239,9 @@ int main (int argc, char *argv[]) {
             if (buffer[0]!='\n') {
               str[strLength++]=buffer[0];
             } else {
+              str[strLength++]='\n';
               str[strLength]='\0';
-              printf("%d / <1 / %s\n",childPid,str);
+              printf("%d / <1 / %s",childPid,str);
               
               logStr(str, " <1 / ");
               
@@ -255,8 +256,9 @@ int main (int argc, char *argv[]) {
               }
             } else {
               if (strLength>0) {
+                str[strLength++]='\n';
                 str[strLength]='\0';
-                printf("%d / <1 / %s\n",childPid,str);
+                printf("%d / <1 / %s",childPid,str);
                 logStr(str, " <1 / ");
                 strLength = 0;
               }
@@ -281,8 +283,9 @@ int main (int argc, char *argv[]) {
             if (buffer[0]!='\n') {
               str[strLength++]=buffer[0];
             } else {
+              str[strLength++]='\n';
               str[strLength]='\0';
-              printf("%d / <2 / %s\n",childPid,str);
+              printf("%d / <2 / %s",childPid,str);
               logStr(str, " <2 / ");
               strLength = 0;
             }
@@ -294,8 +297,9 @@ int main (int argc, char *argv[]) {
               }
             } else {
               if (strLength>0) {
+                str[strLength++]='\n';
                 str[strLength]='\0';
-                printf("%d / <2 / %s\n",childPid,str);
+                printf("%d / <2 / %s",childPid,str);
                 logStr(str, " <2 / ");
                 strLength = 0;
               }
