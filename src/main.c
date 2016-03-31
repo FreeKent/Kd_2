@@ -23,6 +23,8 @@ siginfo_t sigchldInfo,sigIOInfo;
 char str[10000];
 int receivedIOSignal = 0,receivedOutSignal = 0,receivedErrSignal = 0;
 int needIn=0, needOut=0, needErr=0;
+int fdin[2],fdout[2],fderr[2];
+
 void childHandler(int signo, siginfo_t *siginfo, void *context){
   switch (signo) {
     case SIGCHLD:{
@@ -45,10 +47,6 @@ void childHandler(int signo, siginfo_t *siginfo, void *context){
     default:
       break;
   }
-  
-  
-  
-  
 }
 
 int getArgs(int argc, char *argv[]){
@@ -87,7 +85,7 @@ int main (int argc, char *argv[]) {
     return 0;
   }
   
-  int fdin[2],fdout[2],fderr[2];
+  
   if (pipe(fdin)) {
     perror("Can't create pipe\n");
     return 0;
