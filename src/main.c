@@ -294,7 +294,7 @@ int main (int argc, char *argv[]) {
                 }
               } else {
                 if (strLength>0) {
-                  //str[strLength]='\0';
+                  str[strLength++]='\0';
                   //printf("In: %s\n",str);
                   //strLength = 0;
                 }
@@ -304,7 +304,7 @@ int main (int argc, char *argv[]) {
             
             
             printf("In: %s\n",str);
-            if (strncmp(str,"exit",4) == 0 && strLength == 5) {
+            if (strncmp(str,"exit",4) == 0 && strLength == 6) {
               printf("kill child\n");
               kill(SIGHUP,childPid);
               break;
