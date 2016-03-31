@@ -171,7 +171,7 @@ int main (int argc, char *argv[]) {
     close(fdout[1]);
     close(fderr[1]);
     close(fdin[0]);
-    if (mode == 1) {
+    if (mode == 0) {
       fcntl(0, F_SETFL, O_ASYNC | O_NONBLOCK);
       fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
       fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
@@ -195,7 +195,7 @@ int main (int argc, char *argv[]) {
       fd_set fds;
       struct timeval tv;
       int fdCount = 0;
-      if (mode == 1) {
+      if (mode == 0) {
         sleep(1);
       } else {
         FD_ZERO(&fds);
@@ -216,7 +216,7 @@ int main (int argc, char *argv[]) {
       } else {
         char buffer[1];
         int strLength;
-        if (mode == 1) {
+        if (mode == 0) {
           
         } else {
           needIn = FD_ISSET(0, &fds);
