@@ -142,7 +142,7 @@ int main (int argc, char *argv[]) {
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
     sigaddset(&mask, SIGIO);
-    sigaddset(&mask, SIGUSR1);
+    sigaddset(&mask, SIGRTMIN);
     sigaddset(&mask, SIGUSR2);
     sa.sa_mask = mask;
     if (sigaction(SIGCHLD, &sa, NULL) == -1) {
@@ -151,7 +151,7 @@ int main (int argc, char *argv[]) {
     if (sigaction(SIGIO, &sa, NULL) == -1) {
       perror("Can't change action for SIGIO");
     }
-    if (sigaction(SIGUSR1, &sa, NULL) == -1) {
+    if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
       perror("Can't change action for SIGUSR1");
     }
     if (sigaction(SIGUSR2, &sa, NULL) == -1) {
@@ -162,11 +162,11 @@ int main (int argc, char *argv[]) {
     close(fderr[1]);
     close(fdin[0]);
     fcntl(0, F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(0, F_SETSIG, SIGIO);
+    fcntl(0, F_SETSIG, SIGRTMIN);
     fcntl(fdout[0], F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(fdout[0], F_SETSIG, SIGIO);
+    fcntl(fdout[0], F_SETSIG, SIGRTMIN);
     fcntl(fderr[0], F_SETFL, O_ASYNC | O_NONBLOCK);
-    fcntl(fderr[0], F_SETSIG, SIGIO);
+    fcntl(fderr[0], F_SETSIG, SIGRTMIN);
     
     while (!receivedChildSignal) {
       sleep(1);
@@ -317,7 +317,7 @@ int main (int argc, char *argv[]) {
             printf("In: %s\n",str);
             if (strncmp(str,"exit",4) == 0 && strLength == 5) {
               printf("kill child\n");
-              kill(SIGHUP,childPid);
+              kill(SIGKILL,childPid);
               break;
             }
             printf ("not exit\n");
