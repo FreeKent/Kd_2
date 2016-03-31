@@ -9,6 +9,7 @@
 #include <string.h>
 #include <poll.h>
 #include <fcntl.h>
+#include <time.h>
 
 static const struct option opts[] = {
   {"logfile", required_argument, NULL, 1},
